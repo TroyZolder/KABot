@@ -13,7 +13,7 @@ market = '{0}-{1}'.format(trade, currency)
 
 # Gets the balance for the chosen currency
 currentBalance = api.get_balance(currency)
-print("Your balance is {0} {1}.".format(currentBalance['result']['Available'], currency))
+print("You currently have {0} {1}.".format(currentBalance['result']['Available'], currency))
 
 # Getting the BTC price for DOGE
 priceInBTC = api.get_ticker(market)['result']['Last']
@@ -22,19 +22,37 @@ priceInSat = api.get_ticker(market)['result']['Last']*1e8
 print("The price for {0} is {1:.8f} {2} or {3:.0f} Satoshi.".format(currency, priceInBTC, trade, priceInSat))
 
 # Amount of coins to buy
-amount = input("Amount to buy:")
+buyPrice = input("Price to buy per coin (in Sat!):")
+buyPriceInBTC = float(buyPrice)*float(1e-8)
+buyAmount = input("Amount to buy: ")
+buyCost = float(buyAmount)*float(buyPriceInBTC)
 
-# Buying 100 DOGE for BTC
-print("Buying {0} {1} for {2:.8f} {3}.".format(amount, currency, priceInBTC, trade))
-print(api.buy_limit(market, amount, priceInBTC)['success'])
+# Buying confirmation
+print("Buying {0} {1} at {2} Sat, costing {4:.8f} {3}".format(buyAmount, currency, buyPrice, trade, buyCost))
+buyConfirm = input("Confirm buy (y/n):")
 
-# How big of a profit you want to make
-#multiplier = 1.1
+if buyConfirm == 'y':
+    print(api.buy_limit(market, buyAmount, buyPriceInBTC)['success'])
+else:
+    print("Buy cancelled")
+
+# Amount of coins to sell
+sellPrice = input("Price to sell per coin (in Sat!):")
+sellPriceInBTC = float(sellPrice)*float(1e-8)
+sellAmount = input("Amount to sell: ")
+sellCost = float(sellAmount)*float(sellPriceInBTC)
+
 # Multiplying the price by the multiplier
 #dogeprice = round(priceInBTC*multiplier, 8)
-# Selling:
-#print("Selling {0} {1} for {2:.8f} {3}.".format(amount, currency, priceInBTC, trade))
-#print(api.sell_limit(market, amount, priceInBTC)['success'])
+
+# Selling confirmation
+print("Selling {0} {1} for {2} Sat, yielding {4} {3}.".format(sellAmount, currency, sellPrice, trade, sellCost))
+sellConfirm = input("Confirm sell (y/n):")
+
+if sellConfirm == 'y':
+    print(api.sell_limit(market, sellAmount, sellPriceInBTC)['success'])
+else:
+    print("Sell cancelled")
 
 # For a full list of functions, check out bittrex.py or https://bittrex.com/Home/Api
 

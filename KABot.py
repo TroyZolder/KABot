@@ -7,13 +7,9 @@ api = Bittrex('3e79067f35b14fa29a8feb56dcf88b9d', '5c53898f04624919b5bac546db5fe
 
 # Market to trade at
 trade = 'BTC'
-#currency = 'DOGE'
-currency = input("Currency? (BTC-xxx), e.g. DOGE:")
-
+#currency, e.g. 'DOGE', 'XRP' etc.
+currency = input("Currency? (BTC-xxx), e.g. DOGE or XRP:")
 market = '{0}-{1}'.format(trade, currency)
-
-# How big of a profit you want to make
-multiplier = 1.1
 
 # Gets the balance for the chosen currency
 currentBalance = api.get_balance(currency)
@@ -32,12 +28,13 @@ amount = input("Amount to buy:")
 print("Buying {0} {1} for {2:.8f} {3}.".format(amount, currency, priceInBTC, trade))
 print(api.buy_limit(market, amount, priceInBTC)['success'])
 
+# How big of a profit you want to make
+#multiplier = 1.1
 # Multiplying the price by the multiplier
-dogeprice = round(priceInBTC*multiplier, 8)
-
+#dogeprice = round(priceInBTC*multiplier, 8)
 # Selling:
-print("Selling {0} {1} for {2:.8f} {3}.".format(amount, currency, priceInBTC, trade))
-print(api.sell_limit(market, amount, priceInBTC)['success'])
+#print("Selling {0} {1} for {2:.8f} {3}.".format(amount, currency, priceInBTC, trade))
+#print(api.sell_limit(market, amount, priceInBTC)['success'])
 
 # For a full list of functions, check out bittrex.py or https://bittrex.com/Home/Api
 

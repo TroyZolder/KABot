@@ -15,7 +15,7 @@ amount = 1300.0
 multiplier = 1.1
 
 # Getting the BTC price for DOGE
-#dogesummary = api.get_markets('BTC-DOGE',market)
+#dogesummary = api.get_markets('BTC-DOGE',market) 
 #dogeprice = dogesummary[0]['Last']
 dogeprice = 0.00000040
 print("The price for {0} is {1:.8f} {2}.".format(currency, dogeprice, trade))

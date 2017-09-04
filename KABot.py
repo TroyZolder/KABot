@@ -2,7 +2,7 @@
 # This program buys some Dogecoins and sells them for a bigger price
 from bittrex import Bittrex
 import re
-
+import json
 
 # Get APIkeys from https://bittrex.com/Account/ManageApiKey
 # and put them in a APIkeys.txt file in the same folder with
@@ -26,6 +26,9 @@ trade = 'BTC'
 #currency, e.g. 'DOGE', 'XRP' etc.
 currency = input("Currency? (BTC-xxx), e.g. DOGE or XRP:")
 market = '{0}-{1}'.format(trade, currency)
+
+print("oldest \"last\" value:")
+print(api.get_ticks(market)['result'][0]['L'])
 
 # Gets the balance for the chosen currency
 currentBalance = api.get_balance(currency)

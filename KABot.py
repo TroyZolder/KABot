@@ -27,9 +27,34 @@ trade = 'BTC'
 currency = input("Currency? (BTC-xxx), e.g. DOGE or XRP:")
 market = '{0}-{1}'.format(trade, currency)
 
-print("oldest \"last\" value:")
+# Count number of ticks (or the objects in JSON file):
+lengthTicker = len(api.get_ticks(market)['result'])
+
+print("oldest \"last\" value, index [0]:")
 print(api.get_ticks(market)['result'][0]['L'])
 
+print("newest \"last\" value, index {0}:".format(lengthTicker))
+print(api.get_ticks(market)['result'][lengthTicker-1]['L'])
+
+# Moving average:
+sumTicks = 0
+avgTicks = 0
+
+# period to average over:
+avgPeriod = 10
+# how much time to go back e.g. 50 with oneMin intervals = 50 min:
+backTimeIntervals = 5
+movingAvg = [None]*backTimeIntervals
+
+for y in range (1,backTimeIntervals+1):
+    for x in range (y, y+avgPeriod):
+        sumTicks = sumTicks + api.get_ticks(market)['result'][lengthTicker-x]['L']
+    avgTicks = sumTicks/avgPeriod
+    print(avgTicks)
+    movingAvg[y-1] = avgTicks
+    sumTicks = 0
+
+'''
 # Gets the balance for the chosen currency
 currentBalance = api.get_balance(currency)
 print("You currently have {0} {1}.".format(currentBalance['result']['Available'], currency))
@@ -72,7 +97,7 @@ if sellConfirm == 'y':
     print(api.sell_limit(market, sellAmount, sellPriceInBTC)['success'])
 else:
     print("Sell cancelled")
-
+'''
 # For a full list of functions, check out bittrex.py or https://bittrex.com/Home/Api
 
 input("Press Enter to continue...")

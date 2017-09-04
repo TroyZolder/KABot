@@ -1,9 +1,25 @@
 #!/usr/bin/env python
 # This program buys some Dogecoins and sells them for a bigger price
 from bittrex import Bittrex
+import re
 
-# Get these from https://bittrex.com/Account/ManageApiKey
-api = Bittrex('3e79067f35b14fa29a8feb56dcf88b9d', '5c53898f04624919b5bac546db5fec71')
+
+# Get APIkeys from https://bittrex.com/Account/ManageApiKey
+# and put them in a APIkeys.txt file in the same folder with
+# the following format:
+# Key = yourKeyHere
+# Secret = yourSecretKeyHere
+
+with open("APIkeys.txt") as r:
+    for line in r:
+        if line.startswith('Key = '):
+            number = line.partition('= ')[2]
+            number = re.sub('\n', '',number)
+        if line.startswith('Secret = '):
+            number2 = line.partition('= ')[2]
+
+api = Bittrex(number, number2)
+
 
 # Market to trade at
 trade = 'BTC'

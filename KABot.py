@@ -3,6 +3,7 @@
 from bittrex import Bittrex
 import re
 import json
+import matplotlib.pyplot as plt
 
 # Get APIkeys from https://bittrex.com/Account/ManageApiKey
 # and put them in a APIkeys.txt file in the same folder with
@@ -20,40 +21,62 @@ with open("APIkeys.txt") as r:
 
 api = Bittrex(number, number2)
 
-
 # Market to trade at
 trade = 'BTC'
 #currency, e.g. 'DOGE', 'XRP' etc.
 currency = input("Currency? (BTC-xxx), e.g. DOGE or XRP:")
 market = '{0}-{1}'.format(trade, currency)
 
+# Download and store JSON file containing all ticks
+jsonFile = api.get_ticks(market)['result']
 # Count number of ticks (or the objects in JSON file):
 lengthTicker = len(api.get_ticks(market)['result'])
 
 print("oldest \"last\" value, index [0]:")
-print(api.get_ticks(market)['result'][0]['L'])
+print(jsonFile[0]['L'])
 
 print("newest \"last\" value, index {0}:".format(lengthTicker))
-print(api.get_ticks(market)['result'][lengthTicker-1]['L'])
+print(jsonFile[lengthTicker-1]['L'])
 
 # Moving average:
 sumTicks = 0
 avgTicks = 0
-jsonFile = api.get_ticks(market)['result']
 
 # period to average over:
 avgPeriod = 10
 # how much time to go back e.g. 50 with oneMin intervals = 50 min:
-backTimeIntervals = 50
+backTimeIntervals = 120
 movingAvg = [None]*backTimeIntervals
 
 for y in range (1,backTimeIntervals+1):
     for x in range (y, y+avgPeriod):
         sumTicks = sumTicks + jsonFile[lengthTicker-x]['L']
     avgTicks = sumTicks/avgPeriod
-    print(avgTicks)
+    #print(avgTicks)
     movingAvg[y-1] = avgTicks
     sumTicks = 0
+
+
+#movingAvgInSat = [i *1e8 for i in movingAvg] 
+#movingAvgMirrored = list(reversed(movingAvgInSat))
+plt.subplot(2,1,1)
+plt.plot(movingAvg)
+
+plt.title(market)
+plt.ylabel('value [BTC]')
+plt.xlabel('t [min]')
+plt.gca().invert_xaxis()
+plt.grid(True)
+
+plt.subplot(2,1,2)
+plt.plot(movingAvg)
+
+plt.ylabel('value [BTC]')
+plt.xlabel('t [min]')
+plt.gca().invert_xaxis()
+plt.grid(True)
+
+plt.show()
 
 '''
 # Gets the balance for the chosen currency

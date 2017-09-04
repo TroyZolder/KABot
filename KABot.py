@@ -39,16 +39,17 @@ print(api.get_ticks(market)['result'][lengthTicker-1]['L'])
 # Moving average:
 sumTicks = 0
 avgTicks = 0
+jsonFile = api.get_ticks(market)['result']
 
 # period to average over:
 avgPeriod = 10
 # how much time to go back e.g. 50 with oneMin intervals = 50 min:
-backTimeIntervals = 5
+backTimeIntervals = 50
 movingAvg = [None]*backTimeIntervals
 
 for y in range (1,backTimeIntervals+1):
     for x in range (y, y+avgPeriod):
-        sumTicks = sumTicks + api.get_ticks(market)['result'][lengthTicker-x]['L']
+        sumTicks = sumTicks + jsonFile[lengthTicker-x]['L']
     avgTicks = sumTicks/avgPeriod
     print(avgTicks)
     movingAvg[y-1] = avgTicks

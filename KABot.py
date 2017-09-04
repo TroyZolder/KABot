@@ -24,58 +24,61 @@ api = Bittrex(number, number2)
 # Market to trade at
 trade = 'BTC'
 #currency, e.g. 'DOGE', 'XRP' etc.
-currency = input("Currency? (BTC-xxx), e.g. DOGE or XRP:")
-market = '{0}-{1}'.format(trade, currency)
+#currency = input("Currency? (BTC-xxx), e.g. DOGE or XRP:")
 
-# Download and store JSON file containing all ticks
-jsonFile = api.get_ticks(market)['result']
-# Count number of ticks (or the objects in JSON file):
-lengthTicker = len(api.get_ticks(market)['result'])
+currencyList = ['DOGE','XRP','LTC','XMR','DOPE','ETH']
+currencyListLength = len(currencyList)
+movingAvgs = [None]*currencyListLength
 
-print("oldest \"last\" value, index [0]:")
-print(jsonFile[0]['L'])
+for c in range (0,currencyListLength):
+    currency = currencyList[c]
 
-print("newest \"last\" value, index {0}:".format(lengthTicker))
-print(jsonFile[lengthTicker-1]['L'])
+    market = '{0}-{1}'.format(trade, currency)
 
-# Moving average:
-sumTicks = 0
-avgTicks = 0
+    # Download and store JSON file containing all ticks
+    jsonFile = api.get_ticks(market)['result']
+    # Count number of ticks (or the objects in JSON file):
+    lengthTicker = len(api.get_ticks(market)['result'])
 
-# period to average over:
-avgPeriod = 10
-# how much time to go back e.g. 50 with oneMin intervals = 50 min:
-backTimeIntervals = 120
-movingAvg = [None]*backTimeIntervals
+    print(market)
+    print("oldest \"last\" value, index 0:")
+    print(jsonFile[0]['L'])
 
-for y in range (1,backTimeIntervals+1):
-    for x in range (y, y+avgPeriod):
-        sumTicks = sumTicks + jsonFile[lengthTicker-x]['L']
-    avgTicks = sumTicks/avgPeriod
-    #print(avgTicks)
-    movingAvg[y-1] = avgTicks
+    print("newest \"last\" value, index {0}:".format(lengthTicker))
+    print(jsonFile[lengthTicker-1]['L'])
+
+    # Moving average:
     sumTicks = 0
+    avgTicks = 0
 
+    # period to average over:
+    avgPeriod = 10
+    # how much time to go back e.g. 50 with oneMin intervals = 50 min:
+    backTimeIntervals = 120
+    movingAvg = [None]*backTimeIntervals
 
-#movingAvgInSat = [i *1e8 for i in movingAvg] 
-#movingAvgMirrored = list(reversed(movingAvgInSat))
-plt.subplot(2,1,1)
-plt.plot(movingAvg)
+    for y in range (1,backTimeIntervals+1):
+        for x in range (y, y+avgPeriod):
+            sumTicks = sumTicks + jsonFile[lengthTicker-x]['L']
+        avgTicks = sumTicks/avgPeriod
+        #print(avgTicks)
+        movingAvg[y-1] = avgTicks
+        sumTicks = 0
 
-plt.title(market)
-plt.ylabel('value [BTC]')
-plt.xlabel('t [min]')
-plt.gca().invert_xaxis()
-plt.grid(True)
+    movingAvgs[c] = movingAvg
 
-plt.subplot(2,1,2)
-plt.plot(movingAvg)
+    
+for k in range(0,currencyListLength):    
+    plt.subplot(3,2,k+1)
+    plt.plot(movingAvgs[k])
 
-plt.ylabel('value [BTC]')
-plt.xlabel('t [min]')
-plt.gca().invert_xaxis()
-plt.grid(True)
+    plt.title('{0}-{1}'.format(trade, currencyList[k]))
+    plt.ylabel('value [BTC]')
+    plt.xlabel('t [min]')
+    plt.gca().invert_xaxis()
+    plt.grid(True)
 
+plt.tight_layout()
 plt.show()
 
 '''

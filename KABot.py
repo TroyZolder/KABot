@@ -27,9 +27,10 @@ trade = 'BTC'
 #currency, e.g. 'DOGE', 'XRP' etc.
 #currency = input("Currency? (BTC-xxx), e.g. DOGE or XRP:")
 
-currencyList = ['DOGE','XRP','LTC','XMR','DOPE','ETH']
+currencyList = ['ETH','BCC','XRP','LTC','XEM','ETC','DOGE']
 currencyListLength = len(currencyList)
 movingAvgs = [None]*currencyListLength
+originalTicksArrays = [None]*currencyListLength
 linearFit = [None]*currencyListLength
 m = [None]*currencyListLength
 b = [None]*currencyListLength
@@ -58,8 +59,9 @@ for c in range (0,currencyListLength):
     # period to average over:
     avgPeriod = 10
     # how much time to go back e.g. 50 with oneMin intervals = 50 min:
-    backTimeIntervals = 120
+    backTimeIntervals = 60
     movingAvg = [None]*backTimeIntervals
+    originalTicksArray = [None]*backTimeIntervals
     arrayX = np.linspace(1., backTimeIntervals, backTimeIntervals)
 
     for y in range (1,backTimeIntervals+1):
@@ -72,27 +74,23 @@ for c in range (0,currencyListLength):
 
     movingAvgs[c] = movingAvg
 
-    # for linear regression/fit (http://stattrek.com/regression/regression-example.aspx?Tutorial=AP)
-    m[c],b[c] = np.polyfit(arrayX, movingAvg, 1)
     
-    '''
-    movingAvgMeanY = sum([x/backTimeIntervals for x in movingAvg])
-    movingAvgMinusMeanY = movingAvg
-    movingAvgMinusMeanY = [x - movingAvgMeanY for x in movingAvgMinusMeanY]
-    movingAvgMinusMeanYSquared = [x*x for x in movingAvgMinusMeanY]
-
-    arrayXMean = sum([x/backTimeIntervals for x in arrayX])
-    arrayXMinusMean = arrayX
-    arrayXMinusMean = [x - arrayXMean for x in arrayXMinusMean]
-    #arrayXMinusMeanSquared = [x*x for x in arrayXMinusMean]
-
-    b1 = sum(arrayXMean - movingAvgMinusMeanY)/sum(movingAvgMinusMeanYSquared)
-    b0 = arrayXMean - b1*movingAvgMeanY
-    linearFit[c] = b0 + b1*arrayX
-    '''
+    originalTicks = 0
+    for y in range (1,backTimeIntervals+1):
+        for x in range (y, y+1):
+            originalTicks = originalTicks + jsonFile[lengthTicker-x]['L']
+        originalTicksArray[y-1] = originalTicks
+        originalTicks = 0
+        
+    originalTicksArrays[c] = originalTicksArray
+    
+    # for linear regression/fit (http://stattrek.com/regression/regression-example.aspx?Tutorial=AP)
+    m[c],b[c] = np.polyfit(arrayX, originalTicksArray, 1)
+    
 for k in range(0,currencyListLength):    
-    plt.subplot(3,2,k+1)
+    plt.subplot(4,2,k+1)
     plt.plot(arrayX,movingAvgs[k])
+    plt.plot(arrayX,originalTicksArrays[k])
     plt.plot(arrayX,m[k]*arrayX+b[k])
 
     plt.title('{0}-{1}'.format(trade, currencyList[k]))

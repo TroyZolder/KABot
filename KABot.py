@@ -4,6 +4,7 @@ from bittrex import Bittrex
 import re
 import json
 import matplotlib.pyplot as plt
+import numpy as np
 
 # Get APIkeys from https://bittrex.com/Account/ManageApiKey
 # and put them in a APIkeys.txt file in the same folder with
@@ -29,6 +30,9 @@ trade = 'BTC'
 currencyList = ['DOGE','XRP','LTC','XMR','DOPE','ETH']
 currencyListLength = len(currencyList)
 movingAvgs = [None]*currencyListLength
+linearFit = [None]*currencyListLength
+m = [None]*currencyListLength
+b = [None]*currencyListLength
 
 for c in range (0,currencyListLength):
     currency = currencyList[c]
@@ -56,6 +60,7 @@ for c in range (0,currencyListLength):
     # how much time to go back e.g. 50 with oneMin intervals = 50 min:
     backTimeIntervals = 120
     movingAvg = [None]*backTimeIntervals
+    arrayX = np.linspace(1., backTimeIntervals, backTimeIntervals)
 
     for y in range (1,backTimeIntervals+1):
         for x in range (y, y+avgPeriod):
@@ -67,10 +72,28 @@ for c in range (0,currencyListLength):
 
     movingAvgs[c] = movingAvg
 
+    # for linear regression/fit (http://stattrek.com/regression/regression-example.aspx?Tutorial=AP)
+    m[c],b[c] = np.polyfit(arrayX, movingAvg, 1)
     
+    '''
+    movingAvgMeanY = sum([x/backTimeIntervals for x in movingAvg])
+    movingAvgMinusMeanY = movingAvg
+    movingAvgMinusMeanY = [x - movingAvgMeanY for x in movingAvgMinusMeanY]
+    movingAvgMinusMeanYSquared = [x*x for x in movingAvgMinusMeanY]
+
+    arrayXMean = sum([x/backTimeIntervals for x in arrayX])
+    arrayXMinusMean = arrayX
+    arrayXMinusMean = [x - arrayXMean for x in arrayXMinusMean]
+    #arrayXMinusMeanSquared = [x*x for x in arrayXMinusMean]
+
+    b1 = sum(arrayXMean - movingAvgMinusMeanY)/sum(movingAvgMinusMeanYSquared)
+    b0 = arrayXMean - b1*movingAvgMeanY
+    linearFit[c] = b0 + b1*arrayX
+    '''
 for k in range(0,currencyListLength):    
     plt.subplot(3,2,k+1)
-    plt.plot(movingAvgs[k])
+    plt.plot(arrayX,movingAvgs[k])
+    plt.plot(arrayX,m[k]*arrayX+b[k])
 
     plt.title('{0}-{1}'.format(trade, currencyList[k]))
     plt.ylabel('value [BTC]')

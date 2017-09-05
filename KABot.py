@@ -27,30 +27,36 @@ trade = 'BTC'
 #currency, e.g. 'DOGE', 'XRP' etc.
 #currency = input("Currency? (BTC-xxx), e.g. DOGE or XRP:")
 
-currencyList = ['ETH','BCC','XRP','LTC','XEM','ETC','DOGE']
+currencyList = ['ETH','BCC','XRP','LTC','XEM','ETC','XMR','NEO','OK','OMG','LSK','DGB']
 currencyListLength = len(currencyList)
 movingAvgs = [None]*currencyListLength
 originalTicksArrays = [None]*currencyListLength
 linearFit = [None]*currencyListLength
 m = [None]*currencyListLength
 b = [None]*currencyListLength
+jsonFile = [None]*currencyListLength
+market = [None]*currencyListLength
 
 for c in range (0,currencyListLength):
     currency = currencyList[c]
-
-    market = '{0}-{1}'.format(trade, currency)
-
+    market[c] = '{0}-{1}'.format(trade, currency)
+    
     # Download and store JSON file containing all ticks
-    jsonFile = api.get_ticks(market)['result']
+    jsonFile[c] = api.get_ticks(market[c])['result']
+
+    print("Download JSON file for " + market[c])
+
+for c in range (0,currencyListLength):
+
     # Count number of ticks (or the objects in JSON file):
-    lengthTicker = len(api.get_ticks(market)['result'])
+    lengthTicker = len(jsonFile[c])
 
-    print(market)
-    print("oldest \"last\" value, index 0:")
-    print(jsonFile[0]['L'])
+    print("Calculating for..." + market[c])
+#    print("oldest \"last\" value, index 0:")
+#    print(jsonFile[c][0]['L'])
 
-    print("newest \"last\" value, index {0}:".format(lengthTicker))
-    print(jsonFile[lengthTicker-1]['L'])
+#    print("newest \"last\" value, index {0}:".format(lengthTicker))
+#    print(jsonFile[c][lengthTicker-1]['L'])
 
     # Moving average:
     sumTicks = 0
@@ -59,14 +65,14 @@ for c in range (0,currencyListLength):
     # period to average over:
     avgPeriod = 10
     # how much time to go back e.g. 50 with oneMin intervals = 50 min:
-    backTimeIntervals = 60
+    backTimeIntervals = 120
     movingAvg = [None]*backTimeIntervals
     originalTicksArray = [None]*backTimeIntervals
     arrayX = np.linspace(1., backTimeIntervals, backTimeIntervals)
 
     for y in range (1,backTimeIntervals+1):
         for x in range (y, y+avgPeriod):
-            sumTicks = sumTicks + jsonFile[lengthTicker-x]['L']
+            sumTicks = sumTicks + jsonFile[c][lengthTicker-x]['L']
         avgTicks = sumTicks/avgPeriod
         #print(avgTicks)
         movingAvg[y-1] = avgTicks
@@ -78,7 +84,7 @@ for c in range (0,currencyListLength):
     originalTicks = 0
     for y in range (1,backTimeIntervals+1):
         for x in range (y, y+1):
-            originalTicks = originalTicks + jsonFile[lengthTicker-x]['L']
+            originalTicks = originalTicks + jsonFile[c][lengthTicker-x]['L']
         originalTicksArray[y-1] = originalTicks
         originalTicks = 0
         
@@ -88,7 +94,7 @@ for c in range (0,currencyListLength):
     m[c],b[c] = np.polyfit(arrayX, originalTicksArray, 1)
     
 for k in range(0,currencyListLength):    
-    plt.subplot(4,2,k+1)
+    plt.subplot(6,2,k+1)
     plt.plot(arrayX,movingAvgs[k])
     plt.plot(arrayX,originalTicksArrays[k])
     plt.plot(arrayX,m[k]*arrayX+b[k])
@@ -99,7 +105,7 @@ for k in range(0,currencyListLength):
     plt.gca().invert_xaxis()
     plt.grid(True)
 
-plt.tight_layout()
+#plt.tight_layout()
 plt.show()
 
 '''

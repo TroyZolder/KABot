@@ -1,5 +1,3 @@
-# Rushy Panchal
-
 """
    See https://bittrex.com/Home/Api
 """
@@ -69,7 +67,7 @@ class Bittrex(object):
 		
 	def api_query2(self, method, market, options=None):
 		"""
-		DEZE FUNCTIE TOEGEVOEGD DOOR KARUN
+		DEZE METHOD TOEGEVOEGD DOOR KARUN
 		----
 		Met de standaard wrapper heb je niet toegang tot alle info, zoals:
 		https://bittrex.com/Api/v2.0/pub/market/GetTicks?marketName=BTC-WAVES&tickInterval=thirtyMin&_=1499127220008
@@ -98,7 +96,7 @@ class Bittrex(object):
 		request_url = ''
 
 		if method in self.public_set:
-			request_url = (base_url % 'pub/market') + method + '?' + 'marketName=' + "{0[market]}".format(market) + '&tickInterval=oneMin'
+			request_url = (base_url % 'pub/market') + method + '?' + 'marketName=' + "{0[market]}".format(market) + '&tickInterval=fiveMin'
 		elif method in self.market_set:
 			request_url = (base_url % 'market') + method + '?apikey=' + self.api_key + "&nonce=" + nonce + '&'
 		elif method in self.account_set:

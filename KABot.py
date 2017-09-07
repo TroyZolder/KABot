@@ -53,10 +53,10 @@ for c in range (0,currencyListLength):
 
     print("Calculating for..." + market[c])
 #    print("oldest \"last\" value, index 0:")
-#    print(jsonFile[c][0]['L'])
+#    print(jsonFile[c][0]['O'])
 
 #    print("newest \"last\" value, index {0}:".format(lengthTicker))
-#    print(jsonFile[c][lengthTicker-1]['L'])
+#    print(jsonFile[c][lengthTicker-1]['O'])
 
     # Moving average:
     sumTicks = 0
@@ -65,14 +65,14 @@ for c in range (0,currencyListLength):
     # period to average over:
     avgPeriod = 10
     # how much time to go back e.g. 50 with oneMin intervals = 50 min:
-    backTimeIntervals = 120
+    backTimeIntervals = 48
     movingAvg = [None]*backTimeIntervals
     originalTicksArray = [None]*backTimeIntervals
     arrayX = np.linspace(1., backTimeIntervals, backTimeIntervals)
 
     for y in range (1,backTimeIntervals+1):
         for x in range (y, y+avgPeriod):
-            sumTicks = sumTicks + jsonFile[c][lengthTicker-x]['L']
+            sumTicks = sumTicks + jsonFile[c][lengthTicker-x]['O']
         avgTicks = sumTicks/avgPeriod
         #print(avgTicks)
         movingAvg[y-1] = avgTicks
@@ -84,16 +84,19 @@ for c in range (0,currencyListLength):
     originalTicks = 0
     for y in range (1,backTimeIntervals+1):
         for x in range (y, y+1):
-            originalTicks = originalTicks + jsonFile[c][lengthTicker-x]['L']
+            originalTicks = originalTicks + jsonFile[c][lengthTicker-x]['O']
         originalTicksArray[y-1] = originalTicks
         originalTicks = 0
         
     originalTicksArrays[c] = originalTicksArray
     
-    # for linear regression/fit (http://stattrek.com/regression/regression-example.aspx?Tutorial=AP)
+    # Linear regression/fit (http://stattrek.com/regression/regression-example.aspx?Tutorial=AP)
     m[c],b[c] = np.polyfit(arrayX, originalTicksArray, 1)
     
-for k in range(0,currencyListLength):    
+for k in range(0,currencyListLength):
+
+    # For just plotting positive trends use:
+    # if m[k] < 0:
     plt.subplot(6,2,k+1)
     plt.plot(arrayX,movingAvgs[k])
     plt.plot(arrayX,originalTicksArrays[k])
@@ -101,7 +104,7 @@ for k in range(0,currencyListLength):
 
     plt.title('{0}-{1}'.format(trade, currencyList[k]))
     plt.ylabel('value [BTC]')
-    plt.xlabel('t [min]')
+    plt.xlabel('t [5 min]')
     plt.gca().invert_xaxis()
     plt.grid(True)
 
